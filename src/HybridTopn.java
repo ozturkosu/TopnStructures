@@ -1,4 +1,3 @@
-import java.util.Random;
 
 public class HybridTopn extends TopnStructure{
 
@@ -6,23 +5,13 @@ public class HybridTopn extends TopnStructure{
 	final int SKETCH_WIDTH = 1000;
 	final int MULTIPLIER = 1; //Multiplier for number of top items to be kept
 	final double RELIABILTY = 1; //Reliability factor for the sketch
+	final int MURMUR_SEED = 304837963;
 	long[][] sketch;
 	Topn topn;
-	long[] hasha, hashb;
 	
 	public HybridTopn(int n) {
 		sketch = new long[SKETCH_DEPTH][SKETCH_WIDTH];
 		topn = new TopnOrdered(n*MULTIPLIER);
-		hasha = new long[SKETCH_DEPTH];
-		hashb = new long[SKETCH_DEPTH];
-		Random random = new Random();
-		
-		//XXX These have to be fixed later on because of mergebility
-		for( int i = 0; i < SKETCH_DEPTH; i++)
-		{
-			hasha[i] = random.nextLong();
-			hashb[i] = random.nextLong();
-		}
 	}
 	
 	@Override
@@ -32,35 +21,40 @@ public class HybridTopn extends TopnStructure{
 		if(!inCounters)
 		{
 			long frequency = Long.MAX_VALUE;
-			
-			
+			byte[] key = MurmurHash3.intToByteArray(value);
+			MurmurHash3.LongPair out = new MurmurHash3.LongPair();
+			MurmurHash3.murmurhash3_x64_128(key, 0, 4, MURMUR_SEED, out);
+
+			//XXX Check overflow etc?
 			for(int i = 0; i < SKETCH_DEPTH; i++)
 			{		
-				long hashValue = hash31(hasha[i], hashb[i], value);
-				int hashIndex = (int)(hashValue % SKETCH_WIDTH);
+				long hashValue = out.val1 + i * out.val2;
+				int hashIndex = (int)(hashValue)% SKETCH_WIDTH;
+				hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
 				frequency = Math.min(frequency, ++sketch[i][hashIndex]);
 			}
 			
 			frequency *= RELIABILTY;
 			Item newItem = new Item(value, frequency);
 			Item oldItem = null;
-			
-			try {
-				oldItem = topn.update(newItem);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			oldItem = topn.update(newItem);
 			
 			if(oldItem != null)
 			{
+				byte[] oldKey = MurmurHash3.intToByteArray(oldItem.value);
+				MurmurHash3.LongPair oldOut = new MurmurHash3.LongPair();
+				MurmurHash3.murmurhash3_x64_128(oldKey, 0, 4, MURMUR_SEED, oldOut);
+
 				for(int i = 0; i < SKETCH_DEPTH; i++)
 				{		
-					long hashValue = hash31(hasha[i], hashb[i], value);
-					int hashIndex = (int)(hashValue % SKETCH_WIDTH);
+					long hashValue = out.val1 + i * out.val2;
+					int hashIndex = (int)(hashValue)% SKETCH_WIDTH;
+					hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
 					sketch[i][hashIndex] -= frequency;
 					
-					long oldItemHash = hash31(hasha[i], hashb[i], oldItem.value);
+					long oldItemHash = oldOut.val1 + i * oldOut.val2;
 					int oldItemIndex = (int)(oldItemHash % SKETCH_WIDTH);
+					oldItemIndex = (oldItemIndex < 0) ? oldItemIndex + SKETCH_WIDTH : oldItemIndex;
 					sketch[i][oldItemIndex] += oldItem.frequency; //XXX do I need multiplier for this?
 
 				}

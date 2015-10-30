@@ -16,6 +16,7 @@ public abstract class TopnStructure {
 	public abstract String topn();
 
 	//XXX Hash function and random constants must be checked in terms of independence and randomness
+	//XXX old hash function?? Which to use?
 	public static long hash31(long a, long b, long x)
 	{
 

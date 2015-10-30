@@ -63,12 +63,10 @@ public class TopnOrdered implements Topn{
 		return false;
 	}
 
+	
+	//XXX Assumes counters are full
 	@Override
-	public Item update(Item item) throws Exception {
-		if( currentLength < topItems.length)
-		{
-			throw new Exception("Try put before update");
-		}
+	public Item update(Item item){
 		
 		Item minItem = topItems[topItems.length-1];
 		

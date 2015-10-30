@@ -6,6 +6,6 @@ public interface Topn {
 	public boolean put(int value);
 	
 	//Updates top-n according to new Item. Basically check the minimum and update if necessary.
-	public Item update(Item item) throws Exception;
+	public Item update(Item item);
 
 }

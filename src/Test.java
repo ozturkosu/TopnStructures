@@ -2,41 +2,44 @@
 public class Test {
 	public static void main(String[] args)
 	{
-		System.out.println("hell world");
-		HybridTopn test1 = new HybridTopn(4);
-		test1.add(3);
-		test1.add(3);
-		test1.add(3);
-		test1.add(2);
-		test1.add(2);
-		test1.add(2);
-		test1.add(2);
-		test1.add(1);
-		test1.add(1);
-		test1.add(1);
-		test1.add(1);
-		test1.add(5);
-		test1.add(5);
-		test1.add(5);
-		test1.add(5);
-		test1.add(5);
-		test1.add(8);
-		test1.add(8);
-		test1.add(8);
-		test1.add(8);
-		test1.add(8);
-		test1.add(8);
-		test1.add(3);
-		test1.add(3);
-		test1.add(3);
-		test1.add(1);
-		test1.add(1);
-		test1.add(2);
-		test1.add(2);
-		test1.add(5);
-		test1.add(5);
-		test1.add(5);
-		test1.add(5);
+		//XXX maybe I can test with PostgreSQL cms_topn
+		TopnStructure test1 = new CMSTopn(4);
+		
+		for(int i = 0; i < 200; i++)
+		{
+			test1.add(0);
+		}
+		System.out.println(test1.topn());
+
+		for(int i = 0; i < 10; i++)
+		{
+			test1.add(1);
+		}
+		System.out.println(test1.topn());
+
+		for(int i = 0; i < 150; i++)
+		{
+			test1.add(2);
+		}
+		System.out.println(test1.topn());
+
+		
+		for(int i = 0; i < 3; i++)
+		{
+			test1.add(3);
+		}
+		System.out.println(test1.topn());
+
+		for(int i = 0; i < 40000; i++)
+		{
+			test1.add(4);
+		}
+		System.out.println(test1.topn());
+
+		for(int i = 0; i < 6000; i++)
+		{
+			test1.add(5);
+		}
 		System.out.println(test1.topn());
 	}
 }
