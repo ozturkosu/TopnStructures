@@ -64,11 +64,11 @@ public class TopnOrdered implements Topn{
 	}
 
 	
-	//XXX Assumes counters are full
+	//XXX Assumes counters are full and the item is not in the counters
 	@Override
 	public Item update(Item item){
 		
-		Item minItem = topItems[topItems.length-1];
+		Item minItem = topItems[currentLength-1];
 		
 		if(minItem.frequency >= item.frequency)
 		{
@@ -116,5 +116,25 @@ public class TopnOrdered implements Topn{
 		}
 		
 		return topn;
+	}
+	
+	public long getFrequencyOfItem(int value)
+	{
+		Integer itemIndex = items.get(value);
+		
+		if(itemIndex == null)
+		{
+			return -1;
+		}
+		
+		Item item = topItems[itemIndex];
+		
+		return item.frequency;
+	}
+	
+	public long getMinimumFrequency()
+	{
+		Item minItem = topItems[currentLength-1];
+		return minItem.frequency;
 	}
 }

@@ -71,9 +71,30 @@ public class HybridTopn extends TopnStructure{
 	}
 
 	@Override
-	public long frequency(int item) {
-		// TODO Auto-generated method stub
-		return 0;
+	public long frequency(int value) {
+		long topnFrequency = ((TopnOrdered)topn).getFrequencyOfItem(value);
+		if( topnFrequency != -1)
+		{
+			return topnFrequency;
+		}
+		else
+		{
+			long frequency = Long.MAX_VALUE;
+			byte[] key = MurmurHash3.intToByteArray(value);
+			MurmurHash3.LongPair out = new MurmurHash3.LongPair();
+			MurmurHash3.murmurhash3_x64_128(key, 0, 4, MURMUR_SEED, out);
+
+			//XXX Check overflow etc?
+			for(int i = 0; i < SKETCH_DEPTH; i++)
+			{		
+				long hashValue = out.val1 + i * out.val2;
+				int hashIndex = (int)(hashValue)% SKETCH_WIDTH;
+				hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
+				frequency = Math.min(frequency, sketch[i][hashIndex]);
+			}
+			
+			return frequency;
+		}
 	}
 
 	@Override

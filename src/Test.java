@@ -3,7 +3,7 @@ public class Test {
 	public static void main(String[] args)
 	{
 		//XXX maybe I can test with PostgreSQL cms_topn
-		TopnStructure test1 = new CMSTopn(4);
+		TopnStructure test1 = new SpaceSavingTopn(4);
 		
 		for(int i = 0; i < 200; i++)
 		{
