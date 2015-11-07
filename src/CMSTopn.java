@@ -1,26 +1,26 @@
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 public class CMSTopn extends TopnStructure{
 
-	final static int SKETCH_DEPTH = 5;
-	final static int SKETCH_WIDTH = 1000;
-	final static int MULTIPLIER = 1; //Multiplier for number of top items to be kept
-	final static int MURMUR_SEED = 304837963;
+	final static int SKETCH_DEPTH = Constants.DEPTH;
+	final static int SKETCH_WIDTH = Constants.WIDTH;
+	final static int MULTIPLIER = Constants.MULTIPLIER; //Multiplier for number of top items to be kept
+	final static int MURMUR_SEED = Constants.SEED;
 	long[][] sketch;
 	Topn topn;
 	
 	public CMSTopn(int n) {
+		this.n = n;
 		sketch = new long[SKETCH_DEPTH][SKETCH_WIDTH];
 		topn = new TopnUnordered(n*MULTIPLIER, sketch);
 	}
 	
 	@Override
-	public long add(int value) {
+	public long add(int value, long count) {
 		long frequency = Long.MAX_VALUE;
 		byte[] key = MurmurHash3.intToByteArray(value);
 		MurmurHash3.LongPair out = new MurmurHash3.LongPair();
@@ -32,7 +32,8 @@ public class CMSTopn extends TopnStructure{
 			long hashValue = out.val1 + i * out.val2;
 			int hashIndex = (int)(hashValue)% SKETCH_WIDTH;
 			hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
-			frequency = Math.min(frequency, ++sketch[i][hashIndex]);
+			sketch[i][hashIndex] += count;
+			frequency = Math.min(frequency, sketch[i][hashIndex]);
 		}
 		
 		Item newItem = new Item(value, frequency);
@@ -65,25 +66,7 @@ public class CMSTopn extends TopnStructure{
 			sortedTopItems.add(new Item(value, frequency));
 		}
 		
-		Collections.sort(sortedTopItems, new Comparator<Item>() {
-
-			@Override
-			public int compare(Item o1, Item o2) {
-				if(o1.frequency > o2.frequency)
-				{
-					return -1;
-				}
-				else if(o1.frequency == o2.frequency)
-				{
-					return 0;
-				}
-				else
-				{
-					return 1;
-				}
-			}
-			
-		});
+		Collections.sort(sortedTopItems);
 		
 		String result = "Topn:\n";
 		for( int i = 0; i < sortedTopItems.size(); i++)
@@ -111,6 +94,38 @@ public class CMSTopn extends TopnStructure{
 		}
 		
 		return frequency;
+	}
+
+	public static TopnStructure unionAll(TopnStructure[] structures) {
+		Set<Integer> candidateItems = new HashSet<Integer>();
+		CMSTopn result = new CMSTopn(structures[0].n);
+		long[][] resultSketch = result.sketch;
+		
+		for( int i = 0; i < structures.length; i++)
+		{
+			CMSTopn structure = (CMSTopn) structures[i];
+			TopnUnordered topn = (TopnUnordered) structure.topn;
+			
+			for( int item : topn.items)
+			{
+				candidateItems.add(item);
+			}
+			
+			for( int row = 0; row < SKETCH_DEPTH; row++)
+			{
+				for( int col = 0; col < SKETCH_WIDTH; col++)
+				{
+					resultSketch[row][col] += structure.sketch[row][col]; 
+				}
+			}
+		}
+		
+		for( int item : candidateItems)
+		{
+			result.add(item, 0);
+		}
+		
+		return result;
 	}
 
 }

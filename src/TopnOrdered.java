@@ -1,27 +1,27 @@
-import java.util.Hashtable;
+import java.util.HashMap;
 
 //Keeps the top items ordered according to their frequencies
 public class TopnOrdered implements Topn{
 	Item[] topItems;
-	Hashtable<Integer, Integer> items;//value-index
+	HashMap<Integer, Integer> items;//value-index
 	int currentLength;
 	
 	public TopnOrdered(int n)
 	{
 		topItems = new Item[n];
 		currentLength = 0;
-		items = new Hashtable<Integer, Integer>();
+		items = new HashMap<Integer, Integer>();
 	}
 	
 	@Override
-	public boolean put(int value) {
+	public boolean put(int value, long count) {
 		Integer index = items.get(value);
 	
 		//If it is in the top-n update its frequency and place
 		if(index != null)
 		{
 			Item item = topItems[index];
-			item.frequency += 1;
+			item.frequency += count;
 			int newIndex = index;
 			
 			for(int i = index - 1; i > -1; i--)
@@ -32,7 +32,6 @@ public class TopnOrdered implements Topn{
 				if(nextItem.frequency < item.frequency)
 				{
 					topItems[i+1] = nextItem;
-					items.remove(nextItem.value);
 					items.put(nextItem.value, i+1);
 					newIndex = i;
 				}
@@ -45,7 +44,6 @@ public class TopnOrdered implements Topn{
 			if(newIndex != index)
 			{
 				topItems[newIndex] = item;
-				items.remove(item.value);
 				items.put(item.value, newIndex);
 			}
 			return true;
@@ -53,7 +51,7 @@ public class TopnOrdered implements Topn{
 		//if it is not in the top-n check whether there is available place
 		else if(currentLength < topItems.length)
 		{
-			Item newItem = new Item(value);
+			Item newItem = new Item(value, count);
 			topItems[currentLength] = newItem;
 			items.put(value, currentLength);
 			currentLength++;
@@ -87,7 +85,6 @@ public class TopnOrdered implements Topn{
 				if(item.frequency > nextItem.frequency)
 				{
 					topItems[i+1] = nextItem;
-					items.remove(nextItem.value);
 					items.put(nextItem.value, i+1);
 					newIndex = i;
 				}
@@ -104,6 +101,43 @@ public class TopnOrdered implements Topn{
 		}
 	}
 
+	public void insertForUnion(Item item)
+	{
+		int index = -1;
+		if(currentLength < topItems.length)
+		{
+			index = currentLength;
+			currentLength++;
+		}
+		else if( topItems[currentLength-1].frequency < item.frequency)
+		{
+			index = currentLength - 1;
+			items.remove(topItems[index].value);
+		}
+		
+		if( index != -1)
+		{
+			topItems[index] = item;
+			for( int i = index-1; i > -1; i--)
+			{
+				Item nextItem = topItems[i];
+				
+				if(nextItem.frequency < item.frequency)
+				{
+					topItems[i] = item;
+					topItems[i+1] = nextItem;
+					items.put(nextItem.value, i+1);
+				}
+				else
+				{
+					index = i+1;
+					break;
+				}
+			}
+			items.put(item.value, index);
+		}
+		
+	}
 	
 	//Info about top-n items
 	public String toString()
@@ -136,5 +170,10 @@ public class TopnOrdered implements Topn{
 	{
 		Item minItem = topItems[currentLength-1];
 		return minItem.frequency;
+	}
+	
+	public boolean contains(int item)
+	{
+		return items.containsKey(items);
 	}
 }

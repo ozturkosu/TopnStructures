@@ -17,7 +17,7 @@ public class TopnUnordered implements Topn {
 	}
 	
 	@Override
-	public boolean put(int value) {
+	public boolean put(int value, long count) {
 		return false;
 	}
 
