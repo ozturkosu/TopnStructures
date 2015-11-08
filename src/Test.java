@@ -65,12 +65,9 @@ public class Test {
 		TopnStructure[] structures = new TopnStructure[2];
 		structures[0] = test1;
 		structures[1] = test2;
-		
-		TopnStructure result1 = test1.union(test2);
-		System.out.println(result1.topn());
 
-		TopnStructure result2 = SpaceSavingTopn.unionAll(structures);
-		System.out.println(result2.topn());
+		TopnStructure result = SpaceSavingTopn.unionAll(structures);
+		System.out.println(result.topn());
 
 
 	}

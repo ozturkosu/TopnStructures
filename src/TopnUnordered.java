@@ -4,10 +4,10 @@ import java.util.Set;
 
 public class TopnUnordered implements Topn {
 
-	Set<Integer> items;
+	Set<Integer> items; //Top items
 	int n;
 	long currentMin;
-	long[][] sketch;//Reference to the related sketch
+	long[][] sketch; //Reference to the related sketch
 	
 	public TopnUnordered(int n, long[][] sketch) {
 		items = new HashSet<Integer>(n);

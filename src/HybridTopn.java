@@ -1,14 +1,9 @@
 import java.util.HashMap;
 import java.util.Map;
 
-public class HybridTopn extends TopnStructure{
+public class HybridTopn extends TopnStructureWithSketch{
 
-	final static int SKETCH_DEPTH = Constants.DEPTH;
-	final static int SKETCH_WIDTH = Constants.WIDTH;
-	final static int MULTIPLIER = Constants.MULTIPLIER; //Multiplier for number of top items to be kept
-	final static double RELIABILTY = Constants.RELIABILITY; //Reliability factor for the sketch--can be dynamically set
-	final static int MURMUR_SEED = Constants.SEED;
-	long[][] sketch;
+	final static double RELIABILTY = Constants.RELIABILITY; //Reliability factor for the sketch--may be dynamically set
 	
 	public HybridTopn(int n) {
 		this.n = n;
@@ -26,51 +21,25 @@ public class HybridTopn extends TopnStructure{
 			byte[] key = MurmurHash3.intToByteArray(value);
 			MurmurHash3.LongPair out = new MurmurHash3.LongPair();
 			MurmurHash3.murmurhash3_x64_128(key, 0, 4, MURMUR_SEED, out);
-
-			//XXX Check overflow etc?
-			for(int i = 0; i < SKETCH_DEPTH; i++)
-			{		
-				long hashValue = out.val1 + i * out.val2;
-				int hashIndex = (int)(hashValue)% SKETCH_WIDTH;
-				hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
-				sketch[i][hashIndex] += count;
-				frequency = Math.min(frequency, sketch[i][hashIndex]);
-			}
 			
+			frequency = updateSketchAndGetFrequency(out, count);
 			frequency *= RELIABILTY;
 			Item newItem = new Item(value, frequency);
-			Item oldItem = null;
-			oldItem = topn.update(newItem);
+			Item oldItem = topn.update(newItem);
 			
 			if(oldItem != null)
 			{
+				updateSketchAndGetFrequency(out, -frequency);
+
 				byte[] oldKey = MurmurHash3.intToByteArray(oldItem.value);
 				MurmurHash3.LongPair oldOut = new MurmurHash3.LongPair();
 				MurmurHash3.murmurhash3_x64_128(oldKey, 0, 4, MURMUR_SEED, oldOut);
-
-				for(int i = 0; i < SKETCH_DEPTH; i++)
-				{		
-					long hashValue = out.val1 + i * out.val2;
-					int hashIndex = (int)(hashValue)% SKETCH_WIDTH;
-					hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
-					sketch[i][hashIndex] -= frequency;
-					
-					long oldItemHash = oldOut.val1 + i * oldOut.val2;
-					int oldItemIndex = (int)(oldItemHash % SKETCH_WIDTH);
-					oldItemIndex = (oldItemIndex < 0) ? oldItemIndex + SKETCH_WIDTH : oldItemIndex;
-					sketch[i][oldItemIndex] += oldItem.frequency; //XXX do I need multiplier for this?
-
-				}
+				
+				updateSketchAndGetFrequency(oldOut, oldItem.frequency);
 			}
 		}
 		
 		return 0;
-	}
-
-	@Override
-	public TopnStructure union(TopnStructure topnStructure) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -82,19 +51,10 @@ public class HybridTopn extends TopnStructure{
 		}
 		else
 		{
-			long frequency = Long.MAX_VALUE;
 			byte[] key = MurmurHash3.intToByteArray(value);
 			MurmurHash3.LongPair out = new MurmurHash3.LongPair();
 			MurmurHash3.murmurhash3_x64_128(key, 0, 4, MURMUR_SEED, out);
-
-			//XXX Check overflow etc?
-			for(int i = 0; i < SKETCH_DEPTH; i++)
-			{		
-				long hashValue = out.val1 + i * out.val2;
-				int hashIndex = (int)(hashValue)% SKETCH_WIDTH;
-				hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
-				frequency = Math.min(frequency, sketch[i][hashIndex]);
-			}
+			long frequency = updateSketchAndGetFrequency(out, 0);
 			
 			return frequency;
 		}
@@ -108,7 +68,7 @@ public class HybridTopn extends TopnStructure{
 	//XXX Do not forget exceptions if structures is empty or paramaters of structures do not match
 	public static TopnStructure unionAll(TopnStructure[] structures) {
 		HybridTopn result = new HybridTopn(structures[0].n);
-		long[][] currentSketch = result.sketch;
+		long[][] aggregateSketch = result.sketch;
 		HashMap<Integer, Long> candidateItems = new HashMap<Integer, Long>();
 		
 		for( int i = 0; i < structures.length; i++)
@@ -116,89 +76,83 @@ public class HybridTopn extends TopnStructure{
 			HybridTopn structure = (HybridTopn) structures[i];
 			TopnOrdered topn = (TopnOrdered) structure.topn;
 			
-			//XXX Correct!!! I need to use currentlength in other methods also
-			for( Item item : topn.topItems)
+			//Iterate through top items of current structure
+			for( int index = 0; index < topn.currentLength; i++)
 			{
+				Item item = topn.topItems[i];
 				Long frequency = candidateItems.get(item.value);
+				
+				//If the item is already in the candidate list, add the frequency from the current structure
+				//else extract frequency from the aggregate sketch, add the new candidate with the new frequency
+				//and the aggregate frequency
 				if(frequency != null)
 				{
 					candidateItems.put(item.value, item.frequency + frequency);
 				}
 				else
 				{
-					long currentFrequencyFromSketch = Long.MAX_VALUE;
 					byte[] key = MurmurHash3.intToByteArray(item.value);
 					MurmurHash3.LongPair out = new MurmurHash3.LongPair();
 					MurmurHash3.murmurhash3_x64_128(key, 0, 4, MURMUR_SEED, out);
-					
-					//XXX Check overflow etc?
-					for(int row = 0; row < SKETCH_DEPTH; row++)
-					{		
-						long hashValue = out.val1 + row * out.val2;
-						int hashIndex = (int)(hashValue)% SKETCH_WIDTH;
-						hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
-						currentFrequencyFromSketch = Math.min(currentFrequencyFromSketch, currentSketch[row][hashIndex]);
-					}
+					long currentFrequencyFromSketch = result.updateSketchAndGetFrequency(out, 0);
 					
 					currentFrequencyFromSketch *= RELIABILTY;
 					candidateItems.put(item.value, currentFrequencyFromSketch + item.frequency);
-					
-					for(int row = 0; row < SKETCH_DEPTH; row++)
-					{		
-						long hashValue = out.val1 + row * out.val2;
-						int hashIndex = (int)(hashValue)% SKETCH_WIDTH;
-						hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
-						currentSketch[row][hashIndex] -= currentFrequencyFromSketch;
-					}
+					result.updateSketchAndGetFrequency(out, -currentFrequencyFromSketch);
 				}
 			}
 			
+			//Merge the current sketch with aggregate sketch
 			for( int row = 0; row < SKETCH_DEPTH; row++)
 			{
 				for( int col = 0; col < SKETCH_WIDTH; col++)
 				{
-					currentSketch[row][col] += structure.sketch[row][col];
+					aggregateSketch[row][col] += structure.sketch[row][col];
 				}
 			}
 			
+			//Iterate through candidate item list, if an item is not in the current structure's top items,
+			//extract the frequency information from its sketch
 			for (Map.Entry<Integer, Long> entry : candidateItems.entrySet()) {
 			    int item = entry.getKey();
 			    long frequency = entry.getValue();
 			    
 			    if(!topn.contains(item))
 			    {
-			    	long sketchFrequency = Long.MAX_VALUE;
 					byte[] key = MurmurHash3.intToByteArray(item);
 					MurmurHash3.LongPair out = new MurmurHash3.LongPair();
 					MurmurHash3.murmurhash3_x64_128(key, 0, 4, MURMUR_SEED, out);
-					
-					//XXX Check overflow etc?
-					for(int row = 0; row < SKETCH_DEPTH; row++)
-					{		
-						long hashValue = out.val1 + row * out.val2;
-						int hashIndex = (int)(hashValue)% SKETCH_WIDTH;
-						hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
-						sketchFrequency = Math.min(sketchFrequency, structure.sketch[row][hashIndex]);
-					}
-					
+			    	long sketchFrequency = structure.updateSketchAndGetFrequency(out, 0);
+		
 					sketchFrequency *= RELIABILTY;
 					candidateItems.put(item, frequency + sketchFrequency);
-					for(int row = 0; row < SKETCH_DEPTH; row++)
-					{		
-						long hashValue = out.val1 + row * out.val2;
-						int hashIndex = (int)(hashValue) % SKETCH_WIDTH;
-						hashIndex = (hashIndex < 0) ? hashIndex + SKETCH_WIDTH : hashIndex;
-						currentSketch[row][hashIndex] -= sketchFrequency;
-					}
+					result.updateSketchAndGetFrequency(out, -sketchFrequency);
 			    }   
 			}
 		}
 		
+		//Iterate through candidate list, try to put if there is place, else add the frequency
+		//of disqualified item to the sketch
 		for (Map.Entry<Integer, Long> entry : candidateItems.entrySet()) {
 		    int item = entry.getKey();
 		    long frequency = entry.getValue();
 		    
-		    result.add(item, frequency);
+		    boolean inTopn = result.topn.put(item, frequency);
+		    
+		    if(!inTopn)
+		    {
+		    	Item newItem = new Item(item, frequency);
+		    	Item minItem = result.topn.update(newItem);
+		    	if(minItem == null)
+		    	{
+		    		minItem = newItem;
+		    	}
+		    	
+		    	byte[] key = MurmurHash3.intToByteArray(minItem.value);
+				MurmurHash3.LongPair out = new MurmurHash3.LongPair();
+				MurmurHash3.murmurhash3_x64_128(key, 0, 4, MURMUR_SEED, out);
+				result.updateSketchAndGetFrequency(out, minItem.frequency);
+		    }
 		}
 		
 		return result;

@@ -52,8 +52,28 @@ public class TopnOrdered implements Topn{
 		else if(currentLength < topItems.length)
 		{
 			Item newItem = new Item(value, count);
-			topItems[currentLength] = newItem;
-			items.put(value, currentLength);
+			int newIndex = currentLength;
+
+			for(int i = newIndex - 1; i > -1; i--)
+			{
+				Item nextItem = topItems[i];
+				
+				//Swap if new frequency is bigger than next
+				if(nextItem.frequency < newItem.frequency)
+				{
+					topItems[i+1] = nextItem;
+					items.put(nextItem.value, i+1);
+					newIndex = i;
+				}
+				else
+				{
+					break;
+				}
+				
+			}
+			
+			topItems[newIndex] = newItem;
+			items.put(value, newIndex);
 			currentLength++;
 			return true;
 		}
@@ -62,7 +82,7 @@ public class TopnOrdered implements Topn{
 	}
 
 	
-	//XXX Assumes counters are full and the item is not in the counters
+	// Assumes counters are full and the item is not in the counters
 	@Override
 	public Item update(Item item){
 		
@@ -101,44 +121,6 @@ public class TopnOrdered implements Topn{
 		}
 	}
 
-	public void insertForUnion(Item item)
-	{
-		int index = -1;
-		if(currentLength < topItems.length)
-		{
-			index = currentLength;
-			currentLength++;
-		}
-		else if( topItems[currentLength-1].frequency < item.frequency)
-		{
-			index = currentLength - 1;
-			items.remove(topItems[index].value);
-		}
-		
-		if( index != -1)
-		{
-			topItems[index] = item;
-			for( int i = index-1; i > -1; i--)
-			{
-				Item nextItem = topItems[i];
-				
-				if(nextItem.frequency < item.frequency)
-				{
-					topItems[i] = item;
-					topItems[i+1] = nextItem;
-					items.put(nextItem.value, i+1);
-				}
-				else
-				{
-					index = i+1;
-					break;
-				}
-			}
-			items.put(item.value, index);
-		}
-		
-	}
-	
 	//Info about top-n items
 	public String toString()
 	{
