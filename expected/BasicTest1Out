@@ -1,0 +1,45 @@
+Top-n:
+1) Value: 3,  frequency: 48
+2) Value: 4,  frequency: 40
+3) Value: 5,  frequency: 35
+4) Value: 1,  frequency: 32
+5) Value: 2,  frequency: 29
+6) Value: 8,  frequency: 12
+7) Value: 0,  frequency: 8
+8) Value: 6,  frequency: 7
+9) Value: 14,  frequency: 4
+10) Value: 85,  frequency: 4
+11) Value: 25,  frequency: 4
+12) Value: 52,  frequency: 4
+13) Value: 9,  frequency: 4
+14) Value: 65,  frequency: 1
+Topn:
+1) Value: 3,  frequency: 48
+2) Value: 4,  frequency: 40
+3) Value: 5,  frequency: 35
+4) Value: 1,  frequency: 32
+5) Value: 2,  frequency: 29
+6) Value: 8,  frequency: 12
+7) Value: 0,  frequency: 8
+8) Value: 6,  frequency: 7
+9) Value: 9,  frequency: 4
+10) Value: 14,  frequency: 4
+11) Value: 85,  frequency: 4
+12) Value: 52,  frequency: 4
+13) Value: 25,  frequency: 4
+14) Value: 65,  frequency: 1
+Top-n:
+1) Value: 3,  frequency: 48
+2) Value: 4,  frequency: 40
+3) Value: 5,  frequency: 35
+4) Value: 1,  frequency: 32
+5) Value: 2,  frequency: 29
+6) Value: 8,  frequency: 12
+7) Value: 0,  frequency: 8
+8) Value: 6,  frequency: 7
+9) Value: 14,  frequency: 4
+10) Value: 85,  frequency: 4
+11) Value: 25,  frequency: 4
+12) Value: 52,  frequency: 4
+13) Value: 9,  frequency: 4
+14) Value: 65,  frequency: 1

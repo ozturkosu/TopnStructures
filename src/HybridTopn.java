@@ -77,9 +77,9 @@ public class HybridTopn extends TopnStructureWithSketch{
 			TopnOrdered topn = (TopnOrdered) structure.topn;
 			
 			//Iterate through top items of current structure
-			for( int index = 0; index < topn.currentLength; i++)
+			for( int index = 0; index < topn.currentLength; index++)
 			{
-				Item item = topn.topItems[i];
+				Item item = topn.topItems[index];
 				Long frequency = candidateItems.get(item.value);
 				
 				//If the item is already in the candidate list, add the frequency from the current structure

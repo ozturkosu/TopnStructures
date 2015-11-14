@@ -3,6 +3,8 @@ import java.util.Map;
 
 public class SpaceSavingTopn extends TopnStructure {
 
+	final int MULTIPLIER = 1;
+	
 	public SpaceSavingTopn(int n) {
 		this.n = n;
 		topn = new TopnOrdered(n*MULTIPLIER);
@@ -10,7 +12,6 @@ public class SpaceSavingTopn extends TopnStructure {
 	
 	@Override
 	public long add(int value, long count) {
-		
 		boolean added = topn.put(value, count);
 		
 		if(!added)
