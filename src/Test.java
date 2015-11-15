@@ -4,7 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FileUtils;//TODO Don't forget to put warning about this in the Readme
 
 public class Test {
 	
@@ -32,7 +32,7 @@ public class Test {
 		testTopnStructure(simpleSS, "SimpleTest");
 		
 		//CMSTopn Test
-		System.out.println("Simple CMSSpaceSavingTopn:");
+		System.out.println("Simple CMSTopn:");
 		TopnStructure simpleCMS = new CMSTopn(3);
 		testTopnStructure(simpleCMS, "SimpleTest");
 
@@ -85,7 +85,7 @@ public class Test {
 		testTopnStructure(basicSS, "BasicTest");
 		
 		//CMSTopn Test
-		System.out.println("Basic CMSSpaceSavingTopn:");
+		System.out.println("Basic CMSTopn:");
 		TopnStructure basicCMS = new CMSTopn(20);
 		testTopnStructure(basicCMS, "BasicTest");
 
@@ -100,7 +100,7 @@ public class Test {
 		testTopnStructure(basicSS1, "BasicTest1");
 		
 		//CMSTopn Test
-		System.out.println("Basic1 CMSSpaceSavingTopn:");
+		System.out.println("Basic1 CMSTopn:");
 		TopnStructure basicCMS1 = new CMSTopn(14);
 		testTopnStructure(basicCMS1, "BasicTest1");
 
@@ -115,7 +115,7 @@ public class Test {
 		testTopnStructure(basicSS2, "BasicTest2");
 		
 		//CMSTopn Test
-		System.out.println("Basic2 CMSSpaceSavingTopn:");
+		System.out.println("Basic2 CMSTopn:");
 		TopnStructure basicCMS2 = new CMSTopn(7);
 		testTopnStructure(basicCMS2, "BasicTest2");
 
@@ -130,7 +130,7 @@ public class Test {
 		testTopnStructure(basicSS3, "BasicTest3");
 		
 		//CMSTopn Test
-		System.out.println("Basic3 CMSSpaceSavingTopn:");
+		System.out.println("Basic3 CMSTopn:");
 		TopnStructure basicCMS3 = new CMSTopn(1);
 		testTopnStructure(basicCMS3, "BasicTest3");
 
@@ -143,10 +143,94 @@ public class Test {
 		 * Basic Union Tests to check edge cases with smaller and bigger files
 		 */
 		//SpaceSaving Test
+		System.out.println("Basic4 SpaceSavingTopn:");
+		TopnStructure basicSS4 = new SpaceSavingTopn(20);
+		testTopnStructure(basicSS4, "BasicTest4");
+		
+		System.out.println("Basic SpaceSaving Union:");
+		simpleArray[0] = basicSS;
+		simpleArray[1] = basicSS4;
+		testUnion(Structure.SS, simpleArray, "Basic");
 		
 		//CMSTopn Test
+		System.out.println("Basic4 CMSTopn:");
+		TopnStructure basicCMS4 = new CMSTopn(20);
+		testTopnStructure(basicCMS4, "BasicTest4");
 		
+		System.out.println("Basic CMS Union:");
+		simpleArray[0] = basicCMS;
+		simpleArray[1] = basicCMS4;
+		testUnion(Structure.CMS, simpleArray, "Basic");
+
 		//HybridTopn Test
+		System.out.println("Basic HybridTopn:");
+		TopnStructure basicHybrid4 = new HybridTopn(20);
+		testTopnStructure(basicHybrid4, "BasicTest4");
+		
+		System.out.println("Basic Hybrid Union:");
+		simpleArray[0] = basicHybrid;
+		simpleArray[1] = basicHybrid4;
+		testUnion(Structure.H, simpleArray, "Basic");
+		
+		//SpaceSaving Test
+		System.out.println("Basic5 SpaceSavingTopn:");
+		TopnStructure basicSS5 = new SpaceSavingTopn(14);
+		testTopnStructure(basicSS5, "BasicTest5");
+		
+		System.out.println("Basic1 SpaceSaving Union:");
+		simpleArray[0] = basicSS1;
+		simpleArray[1] = basicSS5;
+		testUnion(Structure.SS, simpleArray, "Basic1");
+		
+		//CMSTopn Test
+		System.out.println("Basic5 CMSTopn:");
+		TopnStructure basicCMS5 = new CMSTopn(14);
+		testTopnStructure(basicCMS5, "BasicTest5");
+		
+		System.out.println("Basic1 CMS Union:");
+		simpleArray[0] = basicCMS1;
+		simpleArray[1] = basicCMS5;
+		testUnion(Structure.CMS, simpleArray, "Basic1");
+
+		//HybridTopn Test
+		System.out.println("Basic5 HybridTopn:");
+		TopnStructure basicHybrid5 = new HybridTopn(14);
+		testTopnStructure(basicHybrid5, "BasicTest5");
+		
+		System.out.println("Basic1 Hybrid Union:");
+		simpleArray[0] = basicHybrid1;
+		simpleArray[1] = basicHybrid5;
+		testUnion(Structure.H, simpleArray, "Basic1");
+		
+		//SpaceSaving Test
+		System.out.println("Basic6 SpaceSavingTopn:");
+		TopnStructure basicSS6 = new SpaceSavingTopn(1);
+		testTopnStructure(basicSS6, "BasicTest6");
+		
+		System.out.println("Basic2 SpaceSaving Union:");
+		simpleArray[0] = basicSS3;
+		simpleArray[1] = basicSS6;
+		testUnion(Structure.SS, simpleArray, "Basic2");
+		
+		//CMSTopn Test
+		System.out.println("Basic6 CMSTopn:");
+		TopnStructure basicCMS6 = new CMSTopn(1);
+		testTopnStructure(basicCMS6, "BasicTest6");
+		
+		System.out.println("Basic2 CMS Union:");
+		simpleArray[0] = basicCMS3;
+		simpleArray[1] = basicCMS6;
+		testUnion(Structure.CMS, simpleArray, "Basic2");
+
+		//HybridTopn Test
+		System.out.println("Basic6 HybridTopn:");
+		TopnStructure basicHybrid6 = new HybridTopn(1);
+		testTopnStructure(basicHybrid6, "BasicTest6");
+		
+		System.out.println("Basic2 Hybrid Union:");
+		simpleArray[0] = basicHybrid3;
+		simpleArray[1] = basicHybrid6;
+		testUnion(Structure.H, simpleArray, "Basic2");
 		
 		/*
 		 * Top-n tests with different data distributions like Zipfian, Normal, Random..

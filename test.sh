@@ -5,3 +5,9 @@ diff expected/BasicTestOut result/BasicTestOut
 diff expected/BasicTest1Out result/BasicTest1Out
 diff expected/BasicTest2Out result/BasicTest2Out
 diff expected/BasicTest3Out result/BasicTest3Out
+diff expected/BasicTest4Out result/BasicTest4Out
+diff expected/BasicUnion result/BasicUnion
+diff expected/BasicTest5Out result/BasicTest5Out
+diff expected/Basic1Union result/Basic1Union
+diff expected/BasicTest6Out result/BasicTest6Out
+diff expected/Basic2Union result/Basic2Union
