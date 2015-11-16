@@ -1,4 +1,4 @@
-# Summary Structures For Top-n Problem
+# Summary Structures For The Frequent Items Problem
 I was assigned to implement a count-min sketch extension of PostgreSQL for top-n queries during my internship at [Citus Data](https://www.citusdata.com/). [This extension](https://github.com/citusdata/cms_topn) had to provide mergeable summaries to find frequent items of data sets and union of them. At the beginning of my task, I realized there are different alternatives but we decided to follow the customer's request so we used count-min sketch structure to create summaries and simple list to track most frequent items in our implementation.
 
 ##Idea
