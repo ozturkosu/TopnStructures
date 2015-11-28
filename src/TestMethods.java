@@ -17,7 +17,48 @@ public class TestMethods {
 
 	public static void main(String[] args)
 	{
-		normalGenerator(100000, 50000, 150);
+		convertCsv("checkins");
+		System.out.println("ok");
+	}
+	
+	public static void convertCsv(String csvFile)
+	{
+		Scanner scanner;
+		PrintWriter out;
+
+		try {
+			scanner = new Scanner(new File("test/" + csvFile + ".csv"));
+			out = new PrintWriter(new File("test/" + csvFile));
+			String line = scanner.nextLine();
+			int i = 1;
+			HashMap<String, Integer> venues = new HashMap<String, Integer>();
+
+			while(scanner.hasNextLine())
+			{
+				line = scanner.nextLine();
+				String[] words = line.split(",");
+				String venueId = words[5];
+				
+				if(!venues.containsKey(venueId))
+				{
+					venues.put(venueId, i);
+					out.print(i);
+					i++;
+				}
+				else
+				{
+					int venue = venues.get(venueId);
+					out.print(venue);
+				}
+				out.print(" ");
+			}
+			System.out.println(i);
+			out.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 	
 	public static void testTopnStructure(TopnStructure ts, String inputFile)

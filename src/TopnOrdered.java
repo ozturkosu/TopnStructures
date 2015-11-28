@@ -134,6 +134,19 @@ public class TopnOrdered implements Topn{
 		return topn;
 	}
 	
+	//Info about top-n items
+	public String toString(int n)
+	{
+		String topn = "";
+		
+		for( int i = 0; i < currentLength && i < n; i++)
+		{
+			topn += (i+1) + ") " + topItems[i] + "\n";
+		}
+		
+		return topn;
+	}
+	
 	public long getFrequencyOfItem(int value)
 	{
 		Integer itemIndex = items.get(value);

@@ -1,0 +1,62 @@
+Real Topn:
+1) Value: 120,  frequency: 8102
+2) Value: 19,  frequency: 5963
+3) Value: 612,  frequency: 4684
+4) Value: 221,  frequency: 4550
+5) Value: 1011,  frequency: 4466
+6) Value: 8,  frequency: 4034
+7) Value: 297,  frequency: 3879
+8) Value: 96,  frequency: 3298
+9) Value: 3529,  frequency: 3260
+10) Value: 215,  frequency: 2857
+11) Value: 220,  frequency: 2811
+12) Value: 149,  frequency: 2716
+13) Value: 2118,  frequency: 2710
+14) Value: 946,  frequency: 2643
+15) Value: 913,  frequency: 2535
+45723
+
+Real: 2
+SpaceSaving for Normal100000:
+Top-n:
+1) Value: 120,  frequency: 8102
+2) Value: 19,  frequency: 5963
+3) Value: 612,  frequency: 4684
+4) Value: 221,  frequency: 4550
+5) Value: 1011,  frequency: 4466
+6) Value: 8,  frequency: 4034
+7) Value: 297,  frequency: 3879
+8) Value: 96,  frequency: 3298
+9) Value: 3529,  frequency: 3261
+10) Value: 215,  frequency: 2857
+
+SpaceSaving: 69
+CMSTopn for Normal100000:
+Topn:
+1) Value: 120,  frequency: 9540
+2) Value: 19,  frequency: 7170
+3) Value: 612,  frequency: 5779
+4) Value: 1011,  frequency: 5570
+5) Value: 221,  frequency: 5566
+6) Value: 8,  frequency: 5379
+7) Value: 297,  frequency: 4865
+8) Value: 96,  frequency: 4863
+9) Value: 3529,  frequency: 4857
+10) Value: 9,  frequency: 4335
+57924
+CMSTopn: 2
+HybridTopn for Normal100000:
+Top-n:
+1) Value: 120,  frequency: 8102
+2) Value: 19,  frequency: 5963
+3) Value: 8,  frequency: 4699
+4) Value: 3529,  frequency: 4697
+5) Value: 612,  frequency: 4685
+6) Value: 96,  frequency: 4672
+7) Value: 221,  frequency: 4564
+8) Value: 297,  frequency: 4473
+9) Value: 1011,  frequency: 4467
+10) Value: 9,  frequency: 4332
+50654
+HybridTopn: 1
+

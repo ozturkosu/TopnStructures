@@ -3,7 +3,7 @@ import java.util.Map;
 
 public class SpaceSavingTopn extends TopnStructure {
 
-	final int MULTIPLIER = 1;
+	final int MULTIPLIER = 250;
 	
 	public SpaceSavingTopn(int n) {
 		this.n = n;
@@ -31,7 +31,7 @@ public class SpaceSavingTopn extends TopnStructure {
 
 	@Override
 	public String topn() {
-		return "Top-n:\n" + topn.toString();
+		return "Top-n:\n" + topn.toString(n);
 	}
 
 	public static TopnStructure unionAll(TopnStructure[] structures) {

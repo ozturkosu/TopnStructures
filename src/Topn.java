@@ -8,4 +8,6 @@ public interface Topn {
 	//Updates top-n according to new Item. Basically check the minimum and update if necessary.
 	public Item update(Item item);
 
+	public String toString(int n);
+
 }
